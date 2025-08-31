@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   
+   <!-- View 등록 -->
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="com.kiassist.views.KIAssistView"
+            id="com.kiassist.views.KIAssistView"
+            name="KI Assist"
+            category="com.kiassist.category">
+      </view>
+      <category
+            id="com.kiassist.category"
+            name="KI Assist">
+      </category>
+   </extension>
+
+   <!-- 메뉴 등록 -->
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="com.kiassist.actionSet"
+            label="KI Assist Actions"
+            visible="true">
+         <menu
+               id="com.kiassist.menu"
+               label="KI Assist">
+            <separator name="kiGroup"/>
+         </menu>
+         <action
+               class="com.kiassist.actions.OpenKIAssistAction"
+               id="com.kiassist.actions.openKIAssist"
+               label="Open KI Assist"
+               menubarPath="com.kiassist.menu/kiGroup">
+         </action>
+         <action
+               class="com.kiassist.actions.SettingsAction"
+               id="com.kiassist.actions.settings"
+               label="Settings"
+               menubarPath="com.kiassist.menu/kiGroup">
+         </action>
+      </actionSet>
+   </extension>
+
+   <!-- Preferences 페이지 등록 -->
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.kiassist.preferences.KIAssistPreferencePage"
+            id="com.kiassist.preferences.main"
+            name="KI Assist">
+      </page>
+   </extension>
+
+   <!-- 초기화 설정 -->
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.kiassist.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+</plugin>

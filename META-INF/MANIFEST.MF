@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KI Assist Plugin
+Bundle-SymbolicName: com.kiassist.plugin;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.kiassist.Activator
+Bundle-Vendor: KI Assist Team
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.core.resources,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.swt
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: ., resources/

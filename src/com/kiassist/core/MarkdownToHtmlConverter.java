@@ -34,7 +34,19 @@ public class MarkdownToHtmlConverter {
         
         // 코드 블록 스타일
         "pre { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 10px; overflow-x: auto; margin: 10px 0; }" +
-        "pre code { background-color: transparent; color: #333; padding: 0; }" +
+        "pre code { background-color: transparent; color: white; padding: 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.9em; line-height: 1.4; }" +
+        
+        // 코드 블록 컨테이너 및 헤더 스타일 (다크 테마)
+        ".code-block-container { margin: 10px 0; border-radius: 5px; overflow: hidden; border: 1px solid #555; background-color: #2d2d2d; }" +
+        ".code-header { background-color: #404040; border-bottom: 1px solid #555; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; }" +
+        ".language-tag { background-color: #007acc; color: #ccc; padding: 2px 6px; border-radius: 3px; font-weight: bold; }" +
+        ".copy-btn { display: flex; align-items: center; gap: 4px; background: none; border: none; color: #ccc; cursor: pointer; font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; position: relative; }" +
+        ".copy-btn:hover { background-color: rgba(255, 255, 255, 0.1); color: #fff; }" +
+        ".copy-btn::before { content: ''; display: inline-block; width: 12px; height: 12px; margin-right: 4px; border: 1px solid currentColor; border-radius: 2px; position: relative; }" +
+        ".copy-btn::after { content: ''; position: absolute; left: 6px; top: 6px; width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 1px; background-color: transparent; }" +
+        ".check-icon { display: inline-block; width: 12px; height: 12px; margin-right: 4px; position: relative; }" +
+        ".check-icon::before { content: ''; position: absolute; left: 2px; top: 6px; width: 4px; height: 2px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); }" +
+        ".code-block-container pre { margin: 0; border: none; border-radius: 0; background-color: #2d2d2d; }" +
         
         // 리스트 스타일
         "ul, ol { padding-left: 20px; }" +
@@ -53,22 +65,13 @@ public class MarkdownToHtmlConverter {
         html.append("<meta charset='UTF-8'>");
         html.append("<style>").append(CHAT_CSS).append("</style>");
         
-        // marked.js 로드
-        String markedJs = loadMarkedJS();
-        if (!markedJs.isEmpty()) {
-            html.append("<script>").append(markedJs).append("</script>");
+        // highlight.js CSS 테마 로드
+        String highlightCss = loadHighlightCSS();
+        if (!highlightCss.isEmpty()) {
+            html.append("<style>").append(highlightCss).append("</style>");
         }
         
-        html.append("</head><body>");
-        html.append("<div class='chat-container' id='chatContainer'>");
-        html.append("<div class='message message-system'>");
-        html.append("KI Assist 채팅이 시작되었습니다. 무엇이든 물어보세요!");
-        html.append("</div>");
-        html.append("</div>");
-        
-        // JavaScript 함수들
         html.append("<script>");
-        
         html.append("function debugLog(message) {");
         html.append("  var debugDiv = document.getElementById('debug-info');");
         html.append("  if (!debugDiv) {");
@@ -90,15 +93,95 @@ public class MarkdownToHtmlConverter {
         html.append("  var now = new Date().toLocaleTimeString();");
         html.append("  debugDiv.innerHTML = '[' + now + '] ' + message + '<br>' + debugDiv.innerHTML;");
         html.append("}");
+        html.append("</script>");
         
+        // marked.js 로드
+        String markedJs = loadMarkedJS();
+        if (!markedJs.isEmpty()) {
+            html.append("<script>").append(markedJs).append("</script>");
+        }
+        
+        // highlight.js 로드
+        String highlightJs = loadHighlightJS();
+        if (!highlightJs.isEmpty()) {
+            html.append("<script>").append(highlightJs).append("</script>");
+        }
+        
+        html.append("</head><body>");
+        html.append("<div class='chat-container' id='chatContainer'>");
+        html.append("<div class='message message-system'>");
+        html.append("KI Assist 채팅이 시작되었습니다. 무엇이든 물어보세요!<br>");
+        html.append("</div>");
+        
+        html.append("<pre><code class='javascript'>console.log('highlight.js 테스트 중...');\nfunction test() {\n  return 'CSS 적용 확인';\n}</code></pre>");
+        
+        html.append("</div>");
+        
+        // JavaScript 함수들 (가장 먼저 로드)
+        html.append("<script>");
+        
+        
+        
+        
+        // marked 커스텀 렌더러 설정 함수
+        html.append("function setupMarkedRenderer() {");
+        html.append("  if (typeof marked !== 'undefined') {");
+        html.append("    debugLog('marked 커스텀 렌더러 설정 시작');");
+        html.append("    try {");
+        html.append("      var renderer = new marked.Renderer();");
+        html.append("      renderer.link = function (href, title, text) {");
+        html.append("        return '<a href=\"' + href + '\" title=\"' + (title || text) + '\" target=\"_blank\">' + text + '</a>';");
+        html.append("      };");
+        html.append("      renderer.code = function(code, language) {");
+        html.append("        debugLog('코드 렌더러 호출: ' + typeof code + ', ' + language);");
+        html.append("        var codeText = '';");
+        html.append("        var langText = '';");
+        html.append("        if (typeof code === 'string') {");
+        html.append("          codeText = code;");
+        html.append("          langText = language || 'code';");
+        html.append("        } else if (code && typeof code === 'object') {");
+        html.append("          codeText = code.text || code.code || code.raw || '';");
+        html.append("          langText = code.lang || code.language || language || 'code';");
+        html.append("        }");
+        html.append("        var langClass = langText ? 'language-' + langText : '';");
+        html.append("        var langDisplay = langText || 'code';");
+        html.append("        return '<div class=\"code-block-container\"><div class=\"code-header\"><span class=\"language-tag\">' + langDisplay + '</span><button class=\"copy-btn\" type=\"button\" onclick=\"handleCopyCode(event)\"><span class=\"copy-text\">복사</span></button></div><pre><code class=\"' + langClass + '\">' + codeText + '</code></pre></div>';");
+        html.append("      };");
+        html.append("      marked.setOptions({ renderer: renderer });");
+        html.append("      debugLog('marked 커스텀 렌더러 설정 완료');");
+        html.append("      return true;");
+        html.append("    } catch (e) {");
+        html.append("      debugLog('marked 렌더러 설정 에러: ' + e.message);");
+        html.append("      return false;");
+        html.append("    }");
+        html.append("  } else {");
+        html.append("    debugLog('marked 객체가 정의되지 않음');");
+        html.append("    return false;");
+        html.append("  }");
+        html.append("}");
         
         // marked.js 로드 확인 함수
         html.append("function checkMarkedJS() {");
         html.append("  if (typeof marked !== 'undefined') {");
         html.append("    debugLog('marked.js 로드 성공!');");
+        html.append("    setupMarkedRenderer();");
         html.append("    return true;");
         html.append("  } else {");
         html.append("    debugLog('marked.js 로드 실패!');");
+        html.append("    return false;");
+        html.append("  }");
+        html.append("}");
+        html.append(";");
+    
+        
+        // highlight.js 로드 확인 및 초기화 함수
+        html.append("function checkHighlightJS() {");
+        html.append("  if (typeof hljs !== 'undefined') {");
+        html.append("    debugLog('highlight.js 로드 성공!');");
+        html.append("    hljs.initHighlighting();");
+        html.append("    return true;");
+        html.append("  } else {");
+        html.append("    debugLog('highlight.js 로드 실패!');");
         html.append("    return false;");
         html.append("  }");
         html.append("}");
@@ -119,6 +202,42 @@ public class MarkdownToHtmlConverter {
         html.append("    try {");
         html.append("      html += marked.parse(content);");
         html.append("      debugLog('marked.parse 성공');");
+        html.append("      ");
+        html.append("      setTimeout(function() {");
+        html.append("        debugLog('addMessage setTimeout 시작: highlight.js 적용 시도');");
+        html.append("        if (typeof hljs !== 'undefined') {");
+        html.append("          debugLog('addMessage hljs 객체 존재 확인됨');");
+        html.append("          try {");
+        html.append("            var codeBlocks = document.querySelectorAll('pre code');");
+        html.append("            debugLog('addMessage 코드 블록 갯수: ' + codeBlocks.length);");
+        html.append("            debugLog('for문 시작 전');");
+        html.append("            for (var i = 0; i < codeBlocks.length; i++) {");
+        html.append("              debugLog('for문 반복 ' + i + ' 시작');");
+        html.append("              try {");
+        html.append("                var block = codeBlocks[i];");
+        html.append("                debugLog('블록 ' + i + ' 클래스: ' + block.className);");
+        html.append("                debugLog('블록 ' + i + ' 태그명: ' + block.tagName);");
+        html.append("                debugLog('블록 ' + i + ' 부모 태그: ' + block.parentNode.tagName);");
+        html.append("                if (block.className && block.className.indexOf('language-') === 0) {");
+        html.append("                  debugLog('언어 클래스 발견, highlightBlock 적용: ' + block.className);");
+        html.append("                  hljs.highlightBlock(block);");
+        html.append("                  debugLog('블록 ' + i + ' 하이라이트 적용 완료');");
+        html.append("                } else {");
+        html.append("                  debugLog('언어 클래스 없음: ' + block.className);");
+        html.append("                }");;
+        html.append("              } catch (innerE) {");
+        html.append("                debugLog('for문 내부 에러 ' + i + ': ' + innerE.message);");
+        html.append("              }");
+        html.append("            }");
+        html.append("            debugLog('for문 완료');");
+        html.append("            debugLog('개별 블록 처리 완료, initHighlighting 생략');");
+        html.append("          } catch (e) {");
+        html.append("            debugLog('addMessage hljs.initHighlighting() 에러: ' + e.message);");
+        html.append("          }");
+        html.append("        } else {");
+        html.append("          debugLog('addMessage hljs 객체가 정의되지 않음');");
+        html.append("        }");
+        html.append("      }, 10);");
         html.append("    } catch (e) {");
         html.append("      debugLog('marked.parse 오류: ' + e.message);");
         html.append("      html += content.replace(/\\n/g, '<br>');"); // 폴백
@@ -133,9 +252,48 @@ public class MarkdownToHtmlConverter {
         html.append("  window.scrollTo(0, document.body.scrollHeight);");
         html.append("}");
         
-        // 페이지 로드 완료 시 marked.js 확인
+        // 코드 복사 기능 함수
+        html.append("function handleCopyCode(event) {");
+        html.append("  debugLog('handleCopyCode 호출됨');");
+        html.append("  var button = event.currentTarget;");
+        html.append("  var codeContainer = button.closest('.code-block-container');");
+        html.append("  var codeElement = codeContainer.querySelector('code');");
+        html.append("  var codeText = codeElement.textContent || codeElement.innerText;");
+        html.append("  debugLog('복사할 코드 길이: ' + codeText.length);");
+        html.append("  ");
+        html.append("  try {");
+        html.append("    var textarea = document.createElement('textarea');");
+        html.append("    textarea.value = codeText;");
+        html.append("    textarea.style.position = 'fixed';");
+        html.append("    textarea.style.left = '-9999px';");
+        html.append("    document.body.appendChild(textarea);");
+        html.append("    textarea.select();");
+        html.append("    var successful = document.execCommand('copy');");
+        html.append("    document.body.removeChild(textarea);");
+        html.append("    ");
+        html.append("    if (successful) {");
+        html.append("      debugLog('복사 성공');");
+        html.append("      var originalHTML = button.innerHTML;");
+        html.append("      button.innerHTML = '<span class=\"check-icon\"></span><span class=\"copy-text\">복사됨</span>';");
+        html.append("      button.style.color = '#4CAF50';");
+        html.append("      setTimeout(function() {");
+        html.append("        button.innerHTML = originalHTML;");
+        html.append("        button.style.color = '';");
+        html.append("      }, 2000);");
+        html.append("    } else {");
+        html.append("      debugLog('복사 실패');");
+        html.append("      alert('복사에 실패했습니다');");
+        html.append("    }");
+        html.append("  } catch (err) {");
+        html.append("    debugLog('복사 오류: ' + err.message);");
+        html.append("    alert('복사 기능을 사용할 수 없습니다');");
+        html.append("  }");
+        html.append("}");
+        
+        // 페이지 로드 완료 시 marked.js 또는 highlight.js 확인
         html.append("window.onload = function() {");
         html.append("  checkMarkedJS();");
+        html.append("  checkHighlightJS();");
         html.append("};");
         
         html.append("</script>");
@@ -155,10 +313,22 @@ public class MarkdownToHtmlConverter {
         html.append("<meta charset='UTF-8'>");
         html.append("<style>").append(CHAT_CSS).append("</style>");
         
+        // highlight.js CSS 테마 로드
+        String highlightCss = loadHighlightCSS();
+        if (!highlightCss.isEmpty()) {
+            html.append("<style>").append(highlightCss).append("</style>");
+        }
+        
         // marked.js 로드
         String markedJs = loadMarkedJS();
         if (!markedJs.isEmpty()) {
             html.append("<script>").append(markedJs).append("</script>");
+        }
+        
+        // highlight.js 로드
+        String highlightJs = loadHighlightJS();
+        if (!highlightJs.isEmpty()) {
+            html.append("<script>").append(highlightJs).append("</script>");
         }
         
         html.append("</head><body>");
@@ -208,6 +378,12 @@ public class MarkdownToHtmlConverter {
         html.append("} else {");
         html.append("  debugLog('marked.js 로드 실패!');");
         html.append("}");
+        html.append("if (typeof hljs !== 'undefined') {");
+        html.append("  debugLog('highlight.js 로드 성공!');");
+        html.append("  hljs.initHighlighting();");
+        html.append("} else {");
+        html.append("  debugLog('highlight.js 로드 실패!');");
+        html.append("}");
         html.append("</script>");
         
         html.append("</body></html>");
@@ -244,6 +420,23 @@ public class MarkdownToHtmlConverter {
             html.append("  if (elem && typeof marked !== 'undefined') {");
             html.append("    try {");
             html.append("      elem.innerHTML = marked.parse(elem.textContent || elem.innerText);");
+            html.append("      ");
+            html.append("      setTimeout(function() {");
+            html.append("        debugLog('convertMessageToHTML setTimeout 시작');");
+            html.append("        if (typeof hljs !== 'undefined') {");
+            html.append("          debugLog('convertMessageToHTML hljs 객체 존재');");
+            html.append("          try {");
+            html.append("            var codeBlocks = document.querySelectorAll('pre code');");
+            html.append("            debugLog('convertMessageToHTML 코드 블록 갯수: ' + codeBlocks.length);");
+            html.append("            hljs.initHighlighting();");
+            html.append("            debugLog('convertMessageToHTML hljs.initHighlighting() 성공');");
+            html.append("          } catch (e) {");
+            html.append("            debugLog('convertMessageToHTML hljs.initHighlighting() 에러: ' + e.message);");
+            html.append("          }");
+            html.append("        } else {");
+            html.append("          debugLog('convertMessageToHTML hljs 객체 없음');");
+            html.append("        }");
+            html.append("      }, 100);");
             html.append("    } catch (e) {");
             html.append("      console.log('Markdown parsing error:', e);");
             html.append("      elem.innerHTML = elem.innerHTML.replace(/\\n/g, '<br>');");
@@ -375,6 +568,66 @@ public class MarkdownToHtmlConverter {
             
         } catch (Exception e) {
             System.err.println("marked.js 로드 오류: " + e.getMessage());
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    /**
+     * highlight.js 파일 로드
+     */
+    private String loadHighlightJS() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("web/highlight.min.js");
+            if (is == null) {
+                System.err.println("highlight.min.js 파일을 찾을 수 없습니다. resources/web/highlight.min.js 경로를 확인하세요.");
+                return "";
+            }
+            
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            StringBuilder content = new StringBuilder();
+            String line;
+            
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+            reader.close();
+            
+            System.out.println("highlight.js 로드 완료 (" + content.length() + " 문자)");
+            return content.toString();
+            
+        } catch (Exception e) {
+            System.err.println("highlight.js 로드 오류: " + e.getMessage());
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    /**
+     * highlight.js CSS 테마 로드
+     */
+    private String loadHighlightCSS() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("web/highlight-dark.min.css");
+            if (is == null) {
+                System.err.println("highlight-dark.min.css 파일을 찾을 수 없습니다. resources/web/highlight-dark.min.css 경로를 확인하세요.");
+                return "";
+            }
+            
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            StringBuilder content = new StringBuilder();
+            String line;
+            
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+            reader.close();
+            
+            System.out.println("highlight.js CSS 로드 완료 (" + content.length() + " 문자)");
+            return content.toString();
+            
+        } catch (Exception e) {
+            System.err.println("highlight.js CSS 로드 오류: " + e.getMessage());
             e.printStackTrace();
             return "";
         }

@@ -21,10 +21,13 @@ public class PreferenceConstants {
     // 시스템 설정
     public static final String SETTINGS_VERSION = "kiassist.settings.version";
     
+    // 동적 모델 관리
+    public static final String MODEL_CONFIGS = "kiassist.model.configs"; // JSON 형태로 저장
+    
     // 기본값들
-    public static final String DEFAULT_API_URL = "https://api.openai.com/v1/chat/completions";
+    public static final String DEFAULT_API_URL = "http://114.207.145.84:8000/chat";
     public static final String DEFAULT_MODEL_VALUE = "ki-assist-custom";
     public static final String DEFAULT_MAX_TOKENS = "1000";
     public static final String DEFAULT_TEMPERATURE = "0.7";
-    public static final String DEFAULT_CUSTOM_MODEL = "gpt-3.5-turbo";
+    public static final String DEFAULT_CUSTOM_MODEL = "ki-assist-custom";
 }

@@ -9,6 +9,7 @@
             class="com.kiassist.views.KIAssistView"
             id="com.kiassist.views.KIAssistView"
             name="KI Assist"
+            icon="icons/ci_16x16.png"
             category="com.kiassist.category">
       </view>
       <category
@@ -33,12 +34,14 @@
                class="com.kiassist.actions.OpenKIAssistAction"
                id="com.kiassist.actions.openKIAssist"
                label="Open KI Assist"
+               
                menubarPath="com.kiassist.menu/kiGroup">
          </action>
          <action
                class="com.kiassist.actions.SettingsAction"
                id="com.kiassist.actions.settings"
                label="Settings"
+               
                menubarPath="com.kiassist.menu/kiGroup">
          </action>
       </actionSet>

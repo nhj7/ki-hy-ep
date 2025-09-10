@@ -23,6 +23,8 @@ import com.kiassist.core.LLMClient;
 import com.kiassist.core.ChatMessage;
 import com.kiassist.core.ChatHistory;
 import com.kiassist.core.MarkdownToHtmlConverter;
+import com.kiassist.core.ModelConfigManager;
+import com.kiassist.core.ModelConfig;
 
 /**
  * KI Assist Chat View - JDK 7 호환
@@ -46,6 +48,7 @@ public class KIAssistView extends ViewPart {
 
     @Override
     public void createPartControl(Composite parent) {
+    	System.out.println("createPartControl");
         // 메인 레이아웃
         parent.setLayout(new GridLayout(1, false));
         
@@ -76,15 +79,15 @@ public class KIAssistView extends ViewPart {
         modelLabel.setText("모델:");
         
         modelCombo = new Combo(modelArea, SWT.DROP_DOWN | SWT.READ_ONLY);
-        modelCombo.setItems(new String[] {
-            "KI Assist (커스텀)",
-            "GPT-3.5-turbo",
-            "GPT-4",
-            "Claude-3-haiku", 
-            "Claude-3-sonnet",
-            "Gemini-Pro"
-        });
-        modelCombo.select(0); // "KI Assist" 기본 선택
+        
+        // 동적 모델 목록 로드
+        ModelConfigManager modelManager = ModelConfigManager.getInstance();
+        String[] modelNames = modelManager.getModelDisplayNames();
+        modelCombo.setItems(modelNames);
+        
+        if (modelNames.length > 0) {
+            modelCombo.select(0); // 첫 번째 모델 기본 선택
+        }
         modelCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         
         clearButton = new Button(modelArea, SWT.PUSH);
@@ -103,6 +106,30 @@ public class KIAssistView extends ViewPart {
         GridData browserData = new GridData(SWT.FILL, SWT.FILL, true, true);
         browserData.heightHint = 400;
         chatBrowser.setLayoutData(browserData);
+        
+        // 브라우저 엔진 정보를 디버그 로그에 출력
+        String browserType = chatBrowser.getBrowserType();
+        System.out.println("SWT Browser Engine: " + browserType);
+        
+        // 버전 정보도 함께 출력
+        
+        try {
+            // JavaScript를 통해 IE 버전 정보 얻기
+            Object userAgent = chatBrowser.evaluate("return navigator.userAgent;");
+            if (userAgent != null) {
+                System.out.println("IE User Agent: " + userAgent.toString());
+            }
+            
+            Object appVersion = chatBrowser.evaluate("return navigator.appVersion;");
+            if (appVersion != null) {
+                System.out.println("IE App Version: " + appVersion.toString());
+            }
+            
+            System.out.println("userAgent : "+userAgent + ", appVersion : " + appVersion);
+        } catch (Exception e) {
+            System.out.println("Failed to get IE version info: " + e.getMessage());
+        }
+        
     }
 
     private void createInputArea(Composite parent) {
@@ -116,7 +143,7 @@ public class KIAssistView extends ViewPart {
         inputData.heightHint = 60;
         inputData.widthHint = 300;
         inputText.setLayoutData(inputData);
-        inputText.setText("안녕하세요! KI Assist에게 질문해보세요.");
+        //inputText.setText("안녕하세요! KI Assist에게 질문해보세요.");
         
         // Enter 키로 전송 (Ctrl+Enter)
         inputText.addKeyListener(new KeyAdapter() {
@@ -220,12 +247,16 @@ public class KIAssistView extends ViewPart {
     }
 
     private String getSelectedModelKey() {
-        String selected = modelCombo.getText();
-        if ("KI Assist (커스텀)".equals(selected)) {
-            return "ki-assist-custom";
+        String selectedDisplayName = modelCombo.getText();
+        ModelConfigManager modelManager = ModelConfigManager.getInstance();
+        ModelConfig selectedModel = modelManager.getModelByDisplayName(selectedDisplayName);
+        
+        if (selectedModel != null) {
+            return selectedModel.getId();
         }
-        // 다른 모델들은 그대로 반환
-        return selected.toLowerCase().replace("-", "");
+        
+        // 기본값 반환
+        return "ki-assist-custom";
     }
 
     private void showTypingIndicator() {

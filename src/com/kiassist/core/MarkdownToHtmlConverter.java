@@ -58,6 +58,7 @@ public class MarkdownToHtmlConverter {
     /**
      * 초기 채팅 페이지 HTML 생성 (marked.js 포함)
      */
+    boolean isDebug = false;
     public String createChatPageHTML() {
         StringBuilder html = new StringBuilder();
         html.append("<!DOCTYPE html>");
@@ -73,6 +74,9 @@ public class MarkdownToHtmlConverter {
         
         html.append("<script>");
         html.append("function debugLog(message) {");
+        if( !isDebug )
+        	html.append("  return; ");
+        
         html.append("  var debugDiv = document.getElementById('debug-info');");
         html.append("  if (!debugDiv) {");
         html.append("    debugDiv = document.createElement('div');");
@@ -113,7 +117,7 @@ public class MarkdownToHtmlConverter {
         html.append("KI Assist 채팅이 시작되었습니다. 무엇이든 물어보세요!<br>");
         html.append("</div>");
         
-        html.append("<pre><code class='javascript'>console.log('highlight.js 테스트 중...');\nfunction test() {\n  return 'CSS 적용 확인';\n}</code></pre>");
+        //html.append("<pre><code class='javascript'>console.log('highlight.js 테스트 중...');\nfunction test() {\n  return 'CSS 적용 확인';\n}</code></pre>");
         
         html.append("</div>");
         
@@ -126,7 +130,7 @@ public class MarkdownToHtmlConverter {
         // marked 커스텀 렌더러 설정 함수
         html.append("function setupMarkedRenderer() {");
         html.append("  if (typeof marked !== 'undefined') {");
-        html.append("    debugLog('marked 커스텀 렌더러 설정 시작');");
+        //html.append("    debugLog('marked 커스텀 렌더러 설정 시작');");
         html.append("    try {");
         html.append("      var renderer = new marked.Renderer();");
         html.append("      renderer.link = function (href, title, text) {");
@@ -148,7 +152,7 @@ public class MarkdownToHtmlConverter {
         html.append("        return '<div class=\"code-block-container\"><div class=\"code-header\"><span class=\"language-tag\">' + langDisplay + '</span><button class=\"copy-btn\" type=\"button\" onclick=\"handleCopyCode(event)\"><span class=\"copy-text\">복사</span></button></div><pre><code class=\"' + langClass + '\">' + codeText + '</code></pre></div>';");
         html.append("      };");
         html.append("      marked.setOptions({ renderer: renderer });");
-        html.append("      debugLog('marked 커스텀 렌더러 설정 완료');");
+        //html.append("      debugLog('marked 커스텀 렌더러 설정 완료');");
         html.append("      return true;");
         html.append("    } catch (e) {");
         html.append("      debugLog('marked 렌더러 설정 에러: ' + e.message);");
@@ -305,6 +309,10 @@ public class MarkdownToHtmlConverter {
                 
         // 페이지 로드 완료 시 marked.js 또는 highlight.js 확인
         html.append("window.onload = function() {");
+        html.append("  debugLog('Browser UserAgent: ' + navigator.userAgent);");
+        html.append("  debugLog('Browser AppVersion: ' + navigator.appVersion);");
+        html.append("  debugLog('Browser Platform: ' + navigator.platform);");
+        html.append("  debugLog('Browser Language: ' + navigator.language);");
         html.append("  checkMarkedJS();");
         html.append("  checkHighlightJS();");
         html.append("};");

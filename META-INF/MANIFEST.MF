@@ -15,4 +15,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.swt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: ., resources/
+Bundle-ClassPath: ., resources/, icons/
